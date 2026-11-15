@@ -237,7 +237,10 @@ bool CurrentProgramIsSwitch2() {
 }
 
 bool ReactiveFlushingEnabled() {
-    return values.use_reactive_flushing.GetValue();
+    static constexpr u64 PokemonPokopia = 0x0400A3A01EE4C000ULL;
+    return values.use_reactive_flushing.GetValue() ||
+           (values.cpu_backend.GetValue() == CpuBackend::Nce &&
+            current_program_id == PokemonPokopia);
 }
 
 bool SceneMemoryCapEnabled() {
