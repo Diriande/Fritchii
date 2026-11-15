@@ -22,7 +22,7 @@ Tested on a Samsung Galaxy S26 (Exynos 2600, Xclipse 960, 12 GB) and a Galaxy S2
 ## Known issues
 
 - Ocarina of Time can stay on a black screen after its intro movie on Snapdragon phones (issue #12, under investigation).
-- Fast Fusion launches but does not get further.
+- Fast Fusion reaches races, but runs slowly (the game runs in slow motion) and its image shimmers.
 - Ocarina of Time sometimes starts with graphical glitches; restarting the game helps. On a 12 GB phone it can still be closed for low memory, most often on the first start while shaders compile. Use **0.5x**.
 - Pokopia's sky is black.
 - Microphone input is not supported on Android.
