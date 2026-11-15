@@ -49,7 +49,7 @@ Other phones may work, but these are the only devices Hokkaido is tested on so f
 | Game | Status |
 |---|---|
 | The Legend of Zelda: Ocarina of Time (Switch 2) | Playable. Use 0.5x resolution; 16 GB of RAM recommended. It is no longer optimized for 12 GB phones, where it can run out of memory. |
-| Pokémon Pokopia | Playable and smooth, also on 8 GB phones. The sky is black. |
+| Pokémon Pokopia | Playable, also on 8 GB phones, with its sky (since 0.6.6). |
 | Fire Emblem: Fortune's Weave | Playable. Use 0.5x resolution and leave "Present a frame ahead" on Auto. |
 | Orbitals (Global Friends Pass) | Boots into gameplay. |
 | Fast Fusion | Goes into races, but at low frame rates (the game runs in slow motion). |
