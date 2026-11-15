@@ -5300,7 +5300,10 @@ void TextureCacheRuntime::TranscodeAstcToBcn(
                 // Later chunks wait for the previous encode to finish reading the image.
                 .initialized = first != 0,
                 .level_view = [&pending](s32 level) { return *pending.views[level]; },
-                .wait = true,
+                // Only the last chunk submits: `map` carries the tick of this transcode's start,
+                // and a later chunk reading it after a submit could find it freed or refilled with
+                // the next upload (from zortos293/Lichii#1796).
+                .wait = first + count >= layers,
                 .levels = levels,
             },
             chunk_map, swizzles);
