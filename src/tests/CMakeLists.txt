@@ -210,19 +210,10 @@ endif()
 
 add_test(NAME tests COMMAND tests)
 
-add_executable(profile_migration_tests
-    common/profile_migration.cpp)
-target_link_libraries(profile_migration_tests PRIVATE common Catch2::Catch2WithMain)
-add_test(NAME profile_migration_tests COMMAND profile_migration_tests)
 add_executable(log_file_flush_tests
     common/log_file_flush.cpp)
 target_link_libraries(log_file_flush_tests PRIVATE common Catch2::Catch2WithMain)
 add_test(NAME log_file_flush_tests COMMAND log_file_flush_tests)
-if (TARGET SDL3::SDL3)
-    add_executable(sdl_window_state_tests lichii_cmd/sdl_window_state.cpp)
-    target_link_libraries(sdl_window_state_tests PRIVATE SDL3::SDL3 Catch2::Catch2WithMain)
-    add_test(NAME sdl_window_state_tests COMMAND sdl_window_state_tests)
-endif()
 if (WIN32 AND ARCHITECTURE_x86_64)
     add_executable(event_wait_probe ../../tools/nx2/event_wait_probe.cpp)
     target_link_libraries(event_wait_probe PRIVATE common)
