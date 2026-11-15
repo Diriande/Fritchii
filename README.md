@@ -34,7 +34,7 @@ Requirements: an arm64 phone with Android 13 or newer and Vulkan 1.3. Games, key
 | GPU | Samsung Xclipse 960 (AMD RDNA3, GFX11) | Samsung Xclipse 940 (AMD RDNA3, GFX11) | Qualcomm Adreno 830 |
 | RAM | 12 GB | 8 GB | 12 GB |
 | OS | Android 17 (One UI) | Android 17 (One UI) | Android 17 (One UI) |
-| GPU driver | Custom Mesa RADV build for Xclipse ("RADV Xclipse", Mesa 27.0-devel), installed through the app's GPU driver manager | Same | Adreno driver |
+| GPU driver | Custom Mesa RADV build for Xclipse ("RADV Xclipse", Mesa 27.0-devel), installed through the app's GPU driver manager | Same | "8gen V39 Patched" Adreno driver, installed the same way |
 
 Samsung's own driver on the S26 is also RADV-based and works, but it is slower on this phone than the custom RADV build.
 
