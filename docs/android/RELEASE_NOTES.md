@@ -1,29 +1,31 @@
-# Hokkaido 0.6.4
+# Hokkaido 0.6.5
 
-Tested on a Samsung Galaxy S26 (Exynos 2600, Xclipse 960, 12 GB) and a Galaxy S24 (Exynos 2400, Xclipse 940, 8 GB), both on Android 17.
+Tested on a Samsung Galaxy S26 (Exynos 2600, Xclipse 960, 12 GB) and, for the first time, a Galaxy S25 (Snapdragon 8 Elite, Adreno 830, 12 GB), both on Android 17. The performance work tested on the S26's Exynos carries over well to Snapdragon.
 
 ## Highlights
 
-- **Game compatibility** (upstream)
-  - A texture slot that is still empty when a shader is built now compiles as a 2D texture. Upstream this fixed Pokémon Legends Z-A's blank screen.
-  - Shader translation no longer runs out of stack on Kirby Air Riders' loops.
-  - More shaders translate: shifts with a uniform shift amount (SHF), and more texture gather and call forms.
-  - Ocarina of Time 1.0 (without the update) works with the "No Sharpening" anti-aliasing setting.
-- **Snapdragon:** Adreno's early depth test (LRZ) is turned off where it drew wrong, on Qualcomm's own driver (upstream).
-- **Memory** (upstream)
-  - ASTC textures with uneven mip levels stay compressed on phones and other GPUs with shared or small memory.
-  - A new buffer no longer joins a large buffer it only shares a page with. Upstream this caused slowdowns and a crash on Yoshi's book pages.
-  - Memory hints skip placeholder addresses.
+- **Fast Fusion** now gets past its title screen and into races, but at low frame rates (the game runs in slow motion) and with a shimmering image. Before, it crashed right after the splash screen on every phone tested: at 0.5x resolution, render targets were freed while a cached scaling helper still used them.
+- **Ocarina of Time on 12 GB phones:** Ocarina of Time will no longer be optimized for 12 GB devices. It needs more memory than a 12 GB phone has free and can be closed for low memory there. 16 GB of RAM is recommended.
+- **Speed and memory** (upstream)
+  - GPU address space is reused and given back when the allocator runs out.
+  - Command list copies are reused instead of made again.
+  - Occlusion query lookups, frees and locks are cheaper.
+  - Game file sections open when they are first used.
+  - Memory write traps skip the texture cache on pages that hold no texture.
+  - Fewer GPU submissions in the middle of a draw.
 - **Stability** (upstream)
-  - Closing a game while its shaders load no longer hangs, and the next launch works.
-  - Short reads from game files and failed install copies are reported instead of passing silently.
-- **For contributors:** `test/<name>` branches now publish their APK as a pre-release, so a single fix can be tried before a release.
+  - A render target that got no memory is left out instead of crashing the driver.
+  - A shader translation fix for bit-field extracts.
+  - Movies of games that pace themselves no longer drop frames.
+  - Converted ASTC textures are submitted to the GPU only once complete.
+  - The log is written out every second, so a crash or hang keeps its last lines.
+- **For contributors:** `EDEN_NX2_GPU_LIST_DUMP` shows the command lists the GPU writes for itself, which is what slows Fast Fusion down.
 
 ## Known issues
 
-- Ocarina of Time can stay on a black screen after its intro movie on Snapdragon phones (issue #12, under investigation).
-- Fast Fusion reaches races, but runs slowly (the game runs in slow motion) and its image shimmers.
-- Ocarina of Time sometimes starts with graphical glitches; restarting the game helps. On a 12 GB phone it can still be closed for low memory, most often on the first start while shaders compile. Use **0.5x**.
+- Fast Fusion runs at low frame rates, loads slowly and its image shimmers.
+- Ocarina of Time can stay on a black screen after its intro movie on some Snapdragon phones (issue #12); the S25 we test on gets past it.
+- Ocarina of Time sometimes starts with graphical glitches; restarting the game helps. Use **0.5x**.
 - Pokopia's sky is black.
 - Microphone input is not supported on Android.
 - The phone heats up during long sessions and slows down until it cools.

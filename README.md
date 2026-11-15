@@ -27,16 +27,18 @@ Requirements: an arm64 phone with Android 13 or newer and Vulkan 1.3. Games, key
 
 ## Tested on
 
-| | | |
-|---|---|---|
-| Phone | Samsung Galaxy S26 (SM-S942B) | Samsung Galaxy S24 (SM-S921B) |
-| SoC | Exynos 2600 | Exynos 2400 |
-| GPU | Samsung Xclipse 960 (AMD RDNA3, GFX11) | Samsung Xclipse 940 (AMD RDNA3, GFX11) |
-| RAM | 12 GB | 8 GB |
-| OS | Android 17 (One UI) | Android 17 (One UI) |
-| GPU driver | Custom Mesa RADV build for Xclipse ("RADV Xclipse", Mesa 27.0-devel), installed through the app's GPU driver manager | Same |
+| | | | |
+|---|---|---|---|
+| Phone | Samsung Galaxy S26 (SM-S942B) | Samsung Galaxy S24 (SM-S921B) | Samsung Galaxy S25 (SM-S931B) |
+| SoC | Exynos 2600 | Exynos 2400 | Snapdragon 8 Elite |
+| GPU | Samsung Xclipse 960 (AMD RDNA3, GFX11) | Samsung Xclipse 940 (AMD RDNA3, GFX11) | Qualcomm Adreno 830 |
+| RAM | 12 GB | 8 GB | 12 GB |
+| OS | Android 17 (One UI) | Android 17 (One UI) | Android 17 (One UI) |
+| GPU driver | Custom Mesa RADV build for Xclipse ("RADV Xclipse", Mesa 27.0-devel), installed through the app's GPU driver manager | Same | Adreno driver |
 
 Samsung's own driver on the S26 is also RADV-based and works, but it is slower on this phone than the custom RADV build.
+
+The performance work tested on the S26's Exynos carries over well to Snapdragon: the S25 (Snapdragon 8 Elite) benefits from the same updates.
 
 Other phones may work, but these are the only devices Hokkaido is tested on so far.
 
@@ -46,10 +48,11 @@ Other phones may work, but these are the only devices Hokkaido is tested on so f
 
 | Game | Status |
 |---|---|
-| The Legend of Zelda: Ocarina of Time (Switch 2) | Playable. Use 0.5x resolution; 16 GB of RAM recommended. |
+| The Legend of Zelda: Ocarina of Time (Switch 2) | Playable. Use 0.5x resolution; 16 GB of RAM recommended. It is no longer optimized for 12 GB phones, where it can run out of memory. |
 | Pokémon Pokopia | Playable and smooth, also on 8 GB phones. The sky is black. |
 | Fire Emblem: Fortune's Weave | Playable. Use 0.5x resolution and leave "Present a frame ahead" on Auto. |
 | Orbitals (Global Friends Pass) | Boots into gameplay. |
+| Fast Fusion | Goes into races, but at low frame rates (the game runs in slow motion). |
 
 Only results tested on the phones above are listed here.
 
