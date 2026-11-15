@@ -8,6 +8,7 @@
 #include <chrono>
 #include <cinttypes>
 #include <memory>
+#include <optional>
 
 #include "common/logging.h"
 #include "common/settings.h"
@@ -53,8 +54,9 @@ struct esr_context {
 };
 #endif
 
-// Whether the data abort that raised this signal was a write (ESR_EL1.WnR).
-bool IsWriteFault(mcontext_t& host_ctx) {
+// The ESR of the data abort that raised this signal, or nullopt when the kernel gave none or the
+// signal was not a data abort.
+std::optional<u64> DataAbortEsr(mcontext_t& host_ctx) {
     auto* header = reinterpret_cast<_aarch64_ctx*>(&host_ctx.__reserved);
     while (header->magic != 0 && header->size != 0) {
         if (header->magic == ESR_MAGIC) {
@@ -62,12 +64,57 @@ bool IsWriteFault(mcontext_t& host_ctx) {
             const u64 exception_class = (esr >> 26) & 0x3f;
             constexpr u64 DataAbortLowerEl = 0x24;
             constexpr u64 DataAbortSameEl = 0x25;
-            return (exception_class == DataAbortLowerEl || exception_class == DataAbortSameEl) &&
-                   (esr & (u64{1} << 6)) != 0;
+            if (exception_class == DataAbortLowerEl || exception_class == DataAbortSameEl) {
+                return esr;
+            }
+            return std::nullopt;
         }
         header = reinterpret_cast<_aarch64_ctx*>(reinterpret_cast<char*>(header) + header->size);
     }
-    return false;
+    return std::nullopt;
+}
+
+// Whether the data abort that raised this signal was a write (ESR_EL1.WnR).
+bool IsWriteFault(mcontext_t& host_ctx) {
+    const auto esr = DataAbortEsr(host_ctx);
+    return esr && (*esr & (u64{1} << 6)) != 0;
+}
+
+// Whether this thread's load keeps faulting on the same page from the same instruction within
+// a few milliseconds: handling it as a read did not let it through, so it takes the write path
+// instead of looping. A page read again each frame after being protected again faults far apart.
+bool ReadFaultRepeats(u64 page, u64 pc) {
+    struct Last {
+        u64 page = ~u64{0};
+        u64 pc = 0;
+        u32 count = 0;
+        std::chrono::steady_clock::time_point time;
+    };
+    thread_local Last last;
+    const auto now = std::chrono::steady_clock::now();
+    if (last.page != page || last.pc != pc || now - last.time > std::chrono::milliseconds{5}) {
+        last = {page, pc, 1, now};
+        return false;
+    }
+    last.time = now;
+    if (++last.count <= 64) {
+        return false;
+    }
+    if (static std::atomic_flag logged; !logged.test_and_set(std::memory_order_relaxed)) {
+        LOG_WARNING(Core_ARM,
+                    "NCE: a load at {:#x} keeps faulting on page {:#x} handled as a read, taking "
+                    "it as a write",
+                    pc, page);
+    }
+    last = {};
+    return true;
+}
+
+// Whether it was known to be a read: a load, not a store and not a cache maintenance operation
+// (ESR_EL1.CM), which reports itself as a write anyway.
+bool IsReadFault(mcontext_t& host_ctx) {
+    const auto esr = DataAbortEsr(host_ctx);
+    return esr && (*esr & (u64{1} << 6)) == 0 && (*esr & (u64{1} << 8)) == 0;
 }
 
 // A store to a page that holds GPU-written buffer data. Handing the page back to the CPU
@@ -254,8 +301,12 @@ bool ArmNce::HandleGuestAccessFault(GuestContext* guest_ctx, void* raw_info, voi
     const Common::ProcessAddress addr =
         (reinterpret_cast<u64>(info->si_addr) & ~Memory::YUZU_PAGEMASK);
     auto& memory = guest_ctx->parent->m_running_thread->GetOwnerProcess()->GetMemory();
-    if (RunStoreToGpuPage(memory, static_cast<ucontext_t*>(raw_context)->uc_mcontext,
-                          GetInteger(addr))) {
+    auto& host_ctx = static_cast<ucontext_t*>(raw_context)->uc_mcontext;
+    if (IsReadFault(host_ctx) && !ReadFaultRepeats(GetInteger(addr), host_ctx.pc) &&
+        memory.HandleNceRead(addr)) {
+        return true;
+    }
+    if (RunStoreToGpuPage(memory, host_ctx, GetInteger(addr))) {
         return true;
     }
     if (memory.InvalidateNCE(addr, Memory::YUZU_PAGESIZE)) {

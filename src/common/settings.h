@@ -1108,6 +1108,10 @@ u64 GetCurrentProgramID();
 void SetCurrentProgramIsSwitch2(bool is_switch2);
 bool CurrentProgramIsSwitch2();
 
+// Reactive flushing in effect for the running program: the setting, or always for Pokemon
+// Pokopia under NCE, whose sky is drawn from GPU results the CPU reads back (black without it).
+bool ReactiveFlushingEnabled();
+
 // scene_memory_cap for the running program.
 bool SceneMemoryCapEnabled();
 
