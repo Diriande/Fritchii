@@ -228,6 +228,12 @@ void RendererVulkan::Composite(std::span<const Tegra::FramebufferConfig> framebu
     if (!render_window.IsShown()) {
         return;
     }
+    if (rasterizer.FrameDrawsSkipped()) {
+        // Nothing was drawn this frame: the screen keeps the last drawn one.
+        gpu.RendererFrameEndNotify();
+        rasterizer.TickFrame();
+        return;
+    }
 
     RenderScreenshot(framebuffers);
     const auto acquiring = trace ? std::chrono::steady_clock::now()
